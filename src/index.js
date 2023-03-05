@@ -10,47 +10,43 @@ const countryInfoEl = document.querySelector('.country-info');
 
 inputTextEl.addEventListener('input', debounce(serchByInput, DEBOUNCE_DELAY));
 
-function serchByInput() {
-  const countryNameInput = inputTextEl.value.trim();
-  console.log('countryNameInput:', countryNameInput);
+function serchByInput(event) {
+  const countryNameInput = event.target.value.trim();
+  clearCountryInfo('', '');
   if (!countryNameInput) {
-    clearCountryInfo();
     return;
   }
 
   fetchCountries(countryNameInput)
     .then(coutriesApi => {
-      console.log('coutriesApi:', coutriesApi);
       if (coutriesApi.length > 10) {
         Notiflix.Notify.info(
           'Too many matches found. Please enter a more specific name.'
         );
-        clearCountryInfo();
+        clearCountryInfo('', '');
         return;
       } else if (coutriesApi.length > 1 && coutriesApi.length <= 10) {
         const markupCountryListApi = coutriesApi.map(country =>
           countryList(country)
         );
-        countryListEl.innerHTML = markupCountryListApi.join('');
-        countryInfoEl.innerHTML = '';
+        clearCountryInfo(markupCountryListApi.join(''), '');
       } else {
         const markupCountryCardApi = coutriesApi.map(country =>
           countryCard(country)
         );
-        countryInfoEl.innerHTML = markupCountryCardApi.join('');
-        countryListEl.innerHTML = '';
+        clearCountryInfo('', markupCountryCardApi.join(''));
       }
     })
     .catch(error => {
       Notiflix.Notify.failure('Oops, there is no country with that name');
-      clearCountryInfo();
+      clearCountryInfo('', '');
       return error;
     });
 }
 
-function clearCountryInfo() {
-  countryListEl.innerHTML = '';
-  countryInfoEl.innerHTML = '';
+function clearCountryInfo(list, info) {
+  countryListEl.innerHTML = list;
+  countryInfoEl.innerHTML = info;
 }
 
 function countryList({ flags, name }) {
@@ -71,9 +67,9 @@ function countryCard({ flags, name, capital, population, languages }) {
   }">
         <h2 class="country-info__name">${name.official}</h2>
       </div>
-      <p class="country-info__text"><span style=font-weight:bold;>Capital:</span>${capital}</p>
-      <p class="country-info__text"><span style=font-weight:bold;>Population:</span>${population}</p>
-      <p class="country-info__text"><span style=font-weight:bold;>Languages:</span>${Object.values(
+      <p class="country-info__text"><span style=font-weight:bold;>Capital:</span> ${capital}</p>
+      <p class="country-info__text"><span style=font-weight:bold;>Population:</span> ${population}</p>
+      <p class="country-info__text"><span style=font-weight:bold;>Languages:</span> ${Object.values(
         languages
       )}</p>
     </div>
